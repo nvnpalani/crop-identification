@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+
+models/
+crop_datasets/
+user_uploads/
+
+app_data/scenario_cache.json

@@ -1,0 +1,41 @@
+[
+    {
+        "date": "2026-07-12 09:39:17",
+        "model_name": "Mango Leaf disease Model",
+        "category_trigger": "Auto",
+        "images_added": 0,
+        "images_removed": 4,
+        "old_accuracy": 0.0,
+        "new_accuracy": 100.0,
+        "status": "Success",
+        "dataset_count": 1496,
+        "dataset_hash": "47f58c0dbad26028e2237f1853ec384e",
+        "version": "v1"
+    },
+    {
+        "date": "2026-07-12 09:53:43",
+        "model_name": "Potato Leaf disease Model",
+        "category_trigger": "Auto",
+        "images_added": 0,
+        "images_removed": 0,
+        "old_accuracy": 0.0,
+        "new_accuracy": 99.33,
+        "status": "Success",
+        "dataset_count": 1500,
+        "dataset_hash": "48ee80d89a6281d0b2d53e882fe9aa75",
+        "version": "v1"
+    },
+    {
+        "date": "2026-07-12 11:30:00",
+        "model_name": "Tomato Leaf disease Model",
+        "category_trigger": "Auto",
+        "images_added": 0,
+        "images_removed": 0,
+        "old_accuracy": 0.0,
+        "new_accuracy": 99.5,
+        "status": "Success",
+        "dataset_count": 1499,
+        "dataset_hash": "9d08fee9f5088b403e9a6247b6bc0557",
+        "version": "v1"
+    }
+]
