@@ -1,0 +1,28 @@
+<div class="sidebar-overlay" onclick="document.querySelector('.admin-sidebar').classList.remove('show'); this.classList.remove('show');"></div>
+<aside class="admin-sidebar">
+    <div class="sidebar-logo">
+        <div style="display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.2rem; color: #1f2937; text-decoration: none;">
+    <div style="width: 32px; height: 32px; background-color: #1e7e34; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px;">
+        <i class="fa-solid fa-leaf"></i>
+    </div>
+    <div style="display: flex; flex-direction: column; line-height: 1.1;">
+        <span style="font-size: 1.2rem; margin: 0; padding: 0;">CropID</span>
+        <span style="font-size: 0.7rem; font-weight: 400; color: #4b5563;">Crop Identification</span>
+    </div>
+</div>
+    </div>
+    <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: bold; padding: 1rem 1.5rem 0.5rem; text-transform: uppercase;">User Panel</div>
+    <div class="sidebar-menu">
+        <a href="{{ url_for('detect') }}" class="sidebar-link {% if active_page == 'detect' %}active{% endif %}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            Detect Image
+        </a>
+    </div>
+    <div class="sidebar-menu" style="border-top: 1px solid var(--glass-border); flex-grow: 0;">
+        
+        <a href="{{ url_for('logout') }}" class="sidebar-link" style="color: #ef4444;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Logout
+        </a>
+    </div>
+</aside>

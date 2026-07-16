@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title> AI Suggestions & Dataset Health </title>
@@ -11,6 +12,15 @@
         .spinner { border: 4px solid rgba(0, 0, 0, 0.1); width: 40px; height: 40px; border-radius: 50%; border-left-color: var(--accent-cyan); animation: spin 1s linear infinite; margin: 2rem auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         select { padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); width: 250px; font-size: 1rem; outline: none; background: white; cursor: pointer; font-weight: bold; color: var(--accent-forest); }
+        .filter-row { display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: space-between; }
+        .filter-group { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; min-width: 250px; }
+        .filter-group label { font-weight: 600; color: var(--accent-forest); font-size: 0.95rem; }
+        .filter-select { padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid var(--glass-border); background: white; color: var(--text-main); font-size: 1rem; cursor: pointer; outline: none; width: 100%; transition: all 0.3s ease; }
+        .filter-select:focus { border-color: var(--accent-forest); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+        @media (max-width: 768px) {
+            .filter-row { flex-direction: column; gap: 1rem; }
+            .filter-group { width: 100%; min-width: 100%; }
+        }
         .data-table-container { width: 100%; max-height: 500px; overflow-x: auto; overflow-y: auto; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(255, 255, 255, 0.5); }
         .data-table { width: 100%; border-collapse: collapse; text-align: left; }
         .data-table th, .data-table td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--glass-border); }
@@ -25,10 +35,22 @@
         .health-stat-value { font-size: 1.5rem; font-weight: bold; color: var(--accent-forest); margin: 0.5rem 0; }
     </style>
     <style id="admin-styles">
-        body { margin: 0; padding: 0; display: flex; background: #f8fafc; }
-        .admin-sidebar { width: 260px; height: 100vh; background: white; border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100; }
-        .admin-main { margin-left: 260px; width: calc(100% - 260px); min-height: 100vh; display: flex; flex-direction: column; }
-        .admin-topbar { height: 70px; background: white; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; padding: 0 2rem; position: fixed; top: 0; left: 260px; right: 0; z-index: 500; box-sizing: border-box; }
+        body { margin: 0; padding: 0; display: flex; background: #f8fafc; overflow-x: hidden; }
+        .admin-sidebar { width: 260px; height: 100vh; background: white; border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 1000; transition: transform 0.3s ease; }
+        .admin-main { margin-left: 260px; width: calc(100% - 260px); min-height: 100vh; display: flex; flex-direction: column; transition: margin-left 0.3s ease, width 0.3s ease; }
+        .admin-topbar { height: 70px; background: white; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; padding: 0 2rem; position: fixed; top: 0; left: 260px; right: 0; z-index: 500; box-sizing: border-box; transition: left 0.3s ease; }
+        
+        @media (max-width: 768px) {
+            .admin-sidebar { transform: translateX(-100%); }
+            .admin-sidebar.show { transform: translateX(0); }
+            .admin-main { margin-left: 0; width: 100%; }
+            .admin-topbar { left: 0; padding: 0 1rem; }
+            .admin-content { padding: 1rem; margin-top: 60px; overflow-x: hidden; }
+            .mobile-menu-btn { display: block !important; }
+            .sidebar-overlay { display: none; position: fixed; inset: 0; background: transparent; z-index: 999; }
+            .sidebar-overlay.show { display: block; }
+        }
+        .mobile-menu-btn { display: none; background: none; border: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; padding: 0.5rem; }
         .sidebar-logo { padding: 1.5rem; display: flex; align-items: center; gap: 0.8rem; font-weight: bold; font-size: 1.2rem; color: var(--accent-forest); border-bottom: 1px solid var(--glass-border); }
         .sidebar-menu { padding: 1.5rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; flex-grow: 1; }
         .sidebar-link { display: flex; align-items: center; gap: 1rem; padding: 0.8rem 1rem; border-radius: 8px; color: var(--text-main); text-decoration: none; font-weight: 500; transition: all 0.3s; }
@@ -39,52 +61,15 @@
     </style>
 </head>
 <body>
-    <div class="admin-sidebar">
-        <div class="sidebar-logo">
-            <svg class="brand-icon" viewBox="0 0 24 24" style="width: 28px; height: 28px;"><defs><linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#10b981" /><stop offset="100%" stop-color="#047857" /></linearGradient></defs><polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5" style="stroke: url(#bg);" /><polyline points="12,2 12,22" style="stroke: url(#bg);" /><polyline points="2,8.5 12,12 22,8.5" style="stroke: url(#bg);" /><polyline points="2,15.5 12,12 22,15.5" style="stroke: url(#bg);" /></svg>
-            image detection
-        </div>
-        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: bold; padding: 1rem 1.5rem 0.5rem; text-transform: uppercase;">Admin Panel</div>
-        <div class="sidebar-menu">
-            <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link ">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                Dashboard
-            </a>
-            <a href="{{ url_for('admin_users') }}" class="sidebar-link ">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                User Management
-            </a>
-            <a href="{{ url_for('admin_detect') }}" class="sidebar-link ">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                Detect Image
-            </a>
-            <a href="{{ url_for('auto_training') }}" class="sidebar-link ">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-10.05l5.67-5.67"></path></svg>
-                Auto Training
-            </a>
-            <a href="{{ url_for('training_history') }}" class="sidebar-link ">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                Training History
-            </a>
-            <a href="{{ url_for('suggestions') }}" class="sidebar-link active">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                AI Suggestions
-            </a>
-        </div>
-        <div class="sidebar-menu" style="border-top: 1px solid var(--glass-border); flex-grow: 0;">
-            <a href="#" class="sidebar-link">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                Settings
-            </a>
-            <a href="{{ url_for('logout') }}" class="sidebar-link" style="color: #ef4444;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                Logout
-            </a>
-        </div>
-    </div>
+    {% set active_page = 'suggestions' %}
+    {% include 'components/admin_sidebar.html' %}
     <div class="admin-main">
         <div class="admin-topbar">
-            <div></div> <!-- Left empty spacer -->
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button class="mobile-menu-btn" onclick="document.querySelector('.admin-sidebar').classList.add('show'); document.querySelector('.sidebar-overlay').classList.add('show');">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+            </div>
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <span style="font-weight: 600; color: var(--text-main);">Admin</span>
                 <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--accent-forest); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; cursor: pointer;">A</div>
@@ -93,22 +78,22 @@
         <div class="admin-content">
 <main class="main-content" style="width: 100%; padding: 2rem; display: flex; flex-direction: column; gap: 2rem; box-sizing: border-box;">
         <!-- TOP: SELECTION OPTIONS (HORIZONTAL) -->
-        <div style="background: rgba(16, 185, 129, 0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.2); display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; width: 100%;">
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <label for="crop-select" style="font-weight: bold; color: var(--accent-forest); font-size: 1.1rem;">Select Model (Crop):</label>
-                <select id="crop-select" onchange="updateCategories()">
+        <div class="filter-row" style="background: rgba(16, 185, 129, 0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.2);">
+            <div class="filter-group">
+                <label for="crop-select">Select Model (Crop):</label>
+                <select id="crop-select" class="filter-select" onchange="updateCategories()">
                     <option value="none">-- Select Crop --</option>
                 </select>
             </div>
-            <div id="category-container" style="display: flex; align-items: center; gap: 1rem;">
-                <label for="category-select" style="font-weight: bold; color: var(--accent-forest); font-size: 1.1rem;">Select Category:</label>
-                <select id="category-select" onchange="updateClasses()" disabled>
+            <div id="category-container" class="filter-group">
+                <label for="category-select">Select Category:</label>
+                <select id="category-select" class="filter-select" onchange="updateClasses()" disabled>
                     <option value="all">-- All Categories --</option>
                 </select>
             </div>
-            <div id="subfolder-container" style="display: flex; align-items: center; gap: 1rem;">
-                <label for="class-select" style="font-weight: bold; color: var(--accent-forest); font-size: 1.1rem;">Select Folder:</label>
-                <select id="class-select" onchange="fetchAnalysis()" disabled>
+            <div id="subfolder-container" class="filter-group">
+                <label for="class-select">Select Folder:</label>
+                <select id="class-select" class="filter-select" onchange="fetchAnalysis()" disabled>
                     <option value="all">-- All Folders --</option>
                 </select>
             </div>

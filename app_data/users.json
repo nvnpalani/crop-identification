@@ -4,7 +4,15 @@
         "email": "nvnpalani9@gmail.com",
         "password": "Naveen@2#1",
         "registration_date": "2026-07-12 16:53:40",
-        "login_count": 4,
+        "login_count": 6,
         "id": "75caf8e4-f555-4bf5-ae50-6a66bc404198"
+    },
+    "dcefd6d4-ade6-4524-8493-f0672171603a": {
+        "username": "testuser",
+        "email": "test@example.com",
+        "password": "password123",
+        "registration_date": "2026-07-16 09:15:39",
+        "login_count": 1,
+        "id": "dcefd6d4-ade6-4524-8493-f0672171603a"
     }
 }

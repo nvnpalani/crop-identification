@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title> Image Detection </title>
@@ -139,6 +140,18 @@
             width: 100%;
             margin: 0 auto;
         }
+
+        @media (max-width: 768px) {
+            .admin-sidebar { transform: translateX(-100%); }
+            .admin-sidebar.show { transform: translateX(0); }
+            .admin-main { margin-left: 0; width: 100%; }
+            .admin-topbar { left: 0; padding: 0 1rem; }
+            .admin-content { padding: 1rem; margin-top: 60px; overflow-x: hidden; }
+            .mobile-menu-btn { display: block !important; }
+            .sidebar-overlay { display: none; position: fixed; inset: 0; background: transparent; z-index: 999; }
+            .sidebar-overlay.show { display: block; }
+        }
+        .mobile-menu-btn { display: none; background: none; border: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; padding: 0.5rem; }
     </style>
 </head>
 
@@ -149,61 +162,15 @@
         <p class="loading-text">Analyzing your image...</p>
     </div>
 
-    <div class="admin-sidebar">
-        <div class="sidebar-logo">
-            <svg class="brand-icon" viewBox="0 0 24 24" style="width: 28px; height: 28px;">
-                <defs>
-                    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#10b981" />
-                        <stop offset="100%" stop-color="#047857" />
-                    </linearGradient>
-                </defs>
-                <polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5" style="stroke: url(#bg);" />
-                <polyline points="12,2 12,22" style="stroke: url(#bg);" />
-                <polyline points="2,8.5 12,12 22,8.5" style="stroke: url(#bg);" />
-                <polyline points="2,15.5 12,12 22,15.5" style="stroke: url(#bg);" />
-            </svg>
-            image detection
-        </div>
-        <div
-            style="font-size: 0.7rem; color: var(--text-muted); font-weight: bold; padding: 1rem 1.5rem 0.5rem; text-transform: uppercase;">
-            User Panel</div>
-        <div class="sidebar-menu">
-
-            <a href="{{ url_for('detect') }}" class="sidebar-link active">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                    <circle cx="12" cy="13" r="4"></circle>
-                </svg>
-                Detect Image
-            </a>
-        </div>
-        <div class="sidebar-menu" style="border-top: 1px solid var(--glass-border); flex-grow: 0;">
-            <a href="#" class="sidebar-link">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"></circle>
-                    <path
-                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                    </path>
-                </svg>
-                Settings
-            </a>
-            <a href="{{ url_for('logout') }}" class="sidebar-link" style="color: #ef4444;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                    <polyline points="16 17 21 12 16 7"></polyline>
-                    <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-                Logout
-            </a>
-        </div>
-    </div>
+    {% set active_page = 'detect' %}
+    {% include 'components/user_sidebar.html' %}
     <div class="admin-main">
         <div class="admin-topbar">
-            <div></div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button class="mobile-menu-btn" onclick="document.querySelector('.admin-sidebar').classList.add('show'); document.querySelector('.sidebar-overlay').classList.add('show');">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+            </div>
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <span style="font-weight: 600; color: var(--text-main);">{{ session.get('username', 'User') }}</span>
                 <div
