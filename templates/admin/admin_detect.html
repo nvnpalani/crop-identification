@@ -98,6 +98,15 @@
                         </div>
         
                         <div class="result-details" style="text-align:center;">
+                            {% if 'INVALID' in result_name %}
+                            <h3 style="color:#dc2626; text-transform: uppercase; margin-bottom: 0.5rem;">
+                                ⚠️ Warning
+                            </h3>
+                            <div class="prediction-badge" style="justify-content:center; margin-bottom:1rem; display: flex; flex-direction: column; gap: 0.5rem; width: 100%; align-items: center; padding: 15px; box-sizing: border-box; background: rgba(220, 38, 38, 0.08); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 8px;">
+                                <span style="font-weight: 700; font-size: 1.1rem; color: #dc2626;">Unwanted Image Detected</span>
+                                <span style="font-size: 0.95rem; font-weight: 500; color: #b91c1c;">Please upload a correct plant/leaf image.</span>
+                            </div>
+                            {% else %}
                             <h3 style="color:#16a34a; text-transform: uppercase;">
                                 {{ crop_name if crop_name else 'Detection' }} Result
                             </h3>
@@ -107,6 +116,7 @@
                                     <span style="background: rgba(22, 163, 74, 0.2); padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 1.05rem;">{{ top_3_results[0].confidence }}%</span>
                                 {% endif %}
                             </div>
+                            {% endif %}
 
                             {% if top_3_results and top_3_results|length > 1 %}
                             <div style="margin-top: 1.5rem; text-align: left; background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.05); border-radius: 8px; padding: 1rem;">

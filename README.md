@@ -85,7 +85,7 @@ python app.py
 # 🧠 AI Workflow
 `Upload Image` ➔ `Validation` ➔ `Prediction` ➔ `Store Valid Image` ➔ `Background Retraining` ➔ `Updated Model`
 
----
+--- 
 
 # 🚀 Future Enhancements
 - Expand support for more crops and fruit diseases.

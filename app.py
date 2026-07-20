@@ -929,6 +929,32 @@ def api_detect():
         import concurrent.futures
         g_models, g_classes, mb_model = get_models()
         
+        # --- NEW BLOCK IMAGES VALIDATION ---
+        block_model_key = "block_images_leaf_disease"
+        if block_model_key in g_models:
+            b_model = g_models[block_model_key]
+            b_classes = g_classes.get(block_model_key, [])
+            b_pred = b_model.predict(img_array, verbose=0)
+            b_idx = int(np.argmax(b_pred))
+            if b_idx < len(b_classes) and b_classes[b_idx] == "invalid" and float(np.max(b_pred) * 100) > 60.0:
+                encoded_img = base64.b64encode(file_data).decode("utf-8")
+                img_base64 = f"data:image/jpeg;base64,{encoded_img}"
+                return jsonify({
+                    "status": "success",
+                    "data": {
+                        "result_name": "INVALID / UNWANTED IMAGE",
+                        "crop_name": "Unknown",
+                        "result_confidence": round(float(np.max(b_pred) * 100), 2),
+                        "mango_confidence": 0,
+                        "fruit_confidence": 0,
+                        "leaf_confidence": 0,
+                        "duplicate_msg": None,
+                        "img_base64": img_base64,
+                        "top_3_results": []
+                    }
+                })
+        # -----------------------------------
+        
         # 1. Validation using MobileNetV2
         is_valid_plant = True
         validation_msg = ""
@@ -1002,22 +1028,6 @@ def api_detect():
             with open(save_path, "wb") as f:
                 f.write(file_data)
             
-            # Save copy for Tier-1 Master Model
-            tier1_category = f"{crop_name}_{disease_type}".replace("_disease", "")
-            tier1_upload = os.path.join("user_uploads", "master", "crop_classifier", tier1_category)
-            os.makedirs(tier1_upload, exist_ok=True)
-            t1_filename = f"{tier1_category}_new{len(os.listdir(tier1_upload)) + 1}.jpg"
-            with open(os.path.join(tier1_upload, t1_filename), "wb") as f:
-                f.write(file_data)
-                
-            master_key = "master_crop_classifier"
-            if master_key not in new_uploads_counters:
-                new_uploads_counters[master_key] = 0
-            new_uploads_counters[master_key] += 1
-            if new_uploads_counters[master_key] >= 50:
-                trigger_training(master_key)
-                new_uploads_counters[master_key] = 0
-            
             if best_model_key not in new_uploads_counters:
                 new_uploads_counters[best_model_key] = 0
             new_uploads_counters[best_model_key] += 1
@@ -1083,6 +1093,31 @@ def admin_detect():
 
             import concurrent.futures
             g_models, g_classes, mb_model = get_models()
+            
+            # --- NEW BLOCK IMAGES VALIDATION ---
+            block_model_key = "block_images_leaf_disease"
+            if block_model_key in g_models:
+                b_model = g_models[block_model_key]
+                b_classes = g_classes.get(block_model_key, [])
+                b_pred = b_model.predict(img_array, verbose=0)
+                b_idx = int(np.argmax(b_pred))
+                if b_idx < len(b_classes) and b_classes[b_idx] == "invalid" and float(np.max(b_pred) * 100) > 60.0:
+                    encoded_img = base64.b64encode(file_data).decode("utf-8")
+                    img_base64 = f"data:image/jpeg;base64,{encoded_img}"
+                    return render_template( 
+                        "admin/admin_detect.html",
+                        img_base64=img_base64,
+                        image_type=image_type,
+                        crop_name="Unknown",
+                        result_name="INVALID / UNWANTED IMAGE",
+                        result_confidence=round(float(np.max(b_pred) * 100), 2),
+                        mango_confidence=0,
+                        fruit_confidence=0,
+                        leaf_confidence=0,
+                        duplicate_msg=None,
+                        top_3_results=[]
+                    )
+            # -----------------------------------
             
             # 1. Validation using MobileNetV2
             is_valid_plant = True
@@ -1160,22 +1195,7 @@ def admin_detect():
                 with open(save_path, "wb") as f:
                     f.write(file_data)
                 
-                # Save copy for Tier-1 Master Model
-                tier1_category = f"{crop_name}_{disease_type}".replace("_disease", "")
-                tier1_upload = os.path.join("user_uploads", "master", "crop_classifier", tier1_category)
-                os.makedirs(tier1_upload, exist_ok=True)
-                t1_filename = f"{tier1_category}_new{len(os.listdir(tier1_upload)) + 1}.jpg"
-                with open(os.path.join(tier1_upload, t1_filename), "wb") as f:
-                    f.write(file_data)
-                    
-                master_key = "master_crop_classifier"
-                if master_key not in new_uploads_counters:
-                    new_uploads_counters[master_key] = 0
-                new_uploads_counters[master_key] += 1
-                if new_uploads_counters[master_key] >= 50:
-                    trigger_training(master_key)
-                    new_uploads_counters[master_key] = 0
-                
+
                 if best_model_key not in new_uploads_counters:
                     new_uploads_counters[best_model_key] = 0
                 new_uploads_counters[best_model_key] += 1
@@ -1245,6 +1265,32 @@ def detect():
             import concurrent.futures
             g_models, g_classes, mb_model = get_models()
             
+            # --- NEW BLOCK IMAGES VALIDATION ---
+            block_model_key = "block_images_leaf_disease"
+            if block_model_key in g_models:
+                b_model = g_models[block_model_key]
+                b_classes = g_classes.get(block_model_key, [])
+                b_pred = b_model.predict(img_array, verbose=0)
+                b_idx = int(np.argmax(b_pred))
+                if b_idx < len(b_classes) and b_classes[b_idx] == "invalid" and float(np.max(b_pred) * 100) > 60.0:
+                    encoded_img = base64.b64encode(file_data).decode("utf-8")
+                    img_base64 = f"data:image/jpeg;base64,{encoded_img}"
+                    return render_template( 
+                        "user/index.html",
+                        is_deployed=IS_DEPLOYED,
+                        img_base64=img_base64,
+                        image_type=image_type,
+                        crop_name="Unknown",
+                        result_name="INVALID / UNWANTED IMAGE",
+                        result_confidence=round(float(np.max(b_pred) * 100), 2),
+                        mango_confidence=0,
+                        fruit_confidence=0,
+                        leaf_confidence=0,
+                        duplicate_msg=None,
+                        top_3_results=[]
+                    )
+            # -----------------------------------
+            
             # 1. Validation using MobileNetV2
             is_valid_plant = True
             validation_msg = ""
@@ -1320,22 +1366,7 @@ def detect():
                 with open(save_path, "wb") as f:
                     f.write(file_data)
                 
-                # Save copy for Tier-1 Master Model
-                tier1_category = f"{crop_name}_{disease_type}".replace("_disease", "")
-                tier1_upload = os.path.join("user_uploads", "master", "crop_classifier", tier1_category)
-                os.makedirs(tier1_upload, exist_ok=True)
-                t1_filename = f"{tier1_category}_new{len(os.listdir(tier1_upload)) + 1}.jpg"
-                with open(os.path.join(tier1_upload, t1_filename), "wb") as f:
-                    f.write(file_data)
-                    
-                master_key = "master_crop_classifier"
-                if master_key not in new_uploads_counters:
-                    new_uploads_counters[master_key] = 0
-                new_uploads_counters[master_key] += 1
-                if new_uploads_counters[master_key] >= 50:
-                    trigger_training(master_key)
-                    new_uploads_counters[master_key] = 0
-                
+
                 if best_model_key not in new_uploads_counters:
                     new_uploads_counters[best_model_key] = 0
                 new_uploads_counters[best_model_key] += 1
